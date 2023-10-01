@@ -32,6 +32,7 @@ rospy.init_node('par_sensor')
 
 serial_port = rospy.get_param('~serial_port', '/dev/ttyS0')
 baud_rate = rospy.get_param('~baud_rate', 9600)
+frame_id =  rospy.get_param('~frame_id', 'par')
 
 connection = SerialConnection(serial_port, baud_rate)
 
@@ -42,6 +43,8 @@ while not rospy.is_shutdown():
     parts = data.split()
     if len(parts) == 3:
         par_message = par()
+        par_message.header.frame_id = frame_id
+        par_message.header.stamp = rospy.Time.now()
         par_message.irradiance = float(parts[0].rstrip(', '))
         par_message.temperature = float(parts[1].rstrip(', '))
         par_message.line_voltage = float(parts[2].rstrip(', '))
