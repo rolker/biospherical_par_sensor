@@ -39,13 +39,17 @@ connection = SerialConnection(serial_port, baud_rate)
 publisher = rospy.Publisher("data", par, queue_size=10)
 
 while not rospy.is_shutdown():
-    data = connection.recv()
-    parts = data.split()
-    if len(parts) == 3:
-        par_message = par()
-        par_message.header.frame_id = frame_id
-        par_message.header.stamp = rospy.Time.now()
-        par_message.irradiance = float(parts[0].rstrip(', '))
-        par_message.temperature = float(parts[1].rstrip(', '))
-        par_message.line_voltage = float(parts[2].rstrip(', '))
-        publisher.publish(par_message)
+    try:
+        data = connection.recv()
+        if data is not None:
+            parts = data.split()
+            if len(parts) == 3:
+                par_message = par()
+                par_message.header.frame_id = frame_id
+                par_message.header.stamp = rospy.Time.now()
+                par_message.irradiance = float(parts[0].rstrip(', '))
+                par_message.temperature = float(parts[1].rstrip(', '))
+                par_message.line_voltage = float(parts[2].rstrip(', '))
+                publisher.publish(par_message)
+    except:
+        pass
